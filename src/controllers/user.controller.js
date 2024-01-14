@@ -295,7 +295,7 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Error while uploading ono cloudinary");
   }
 
-  const user = User.findByIdAndUpdate(
+  const user = await User.findByIdAndUpdate(
     req.user?._id,
     {
       $set: {
@@ -323,7 +323,7 @@ const updateCoverImage = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Error while uploading on cloudinary");
   }
 
-  const user = User.findByIdAndUpdate(
+  const user = await User.findByIdAndUpdate(
     req.user?._id,
     {
       $set: {
