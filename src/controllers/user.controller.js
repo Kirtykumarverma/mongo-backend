@@ -86,7 +86,7 @@ const registerUser = asyncHandler(async (req, res) => {
 const generateAccessAndRefreshToken = async (userId) => {
   try {
     const user = await User.findById(userId);
-    console.log(user);
+    //console.log(user);
     const accessToken = user.generateAccessToken();
     const refreshToken = user.generateRefreshToken();
 
@@ -169,8 +169,8 @@ const logoutUser = asyncHandler(async (req, res) => {
   await User.findByIdAndUpdate(
     req.user._id,
     {
-      $set: {
-        refreshToken: undefined,
+      $unset: {
+        refreshToken: 1, //this removes the field from document
       },
     },
     { new: true }
@@ -184,12 +184,12 @@ const logoutUser = asyncHandler(async (req, res) => {
     .status(200)
     .clearCookie("accessToken", options)
     .clearCookie("refreshToken", options)
-    .json(new ApiResponse(200, "User logged out successfully"));
+    .json(new ApiResponse(200, {}, "User logged out successfully"));
 });
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
   const incomingRefereshToken =
-    req.cookie.refreshToken || req.body.refreshToken;
+    req.cookies.refreshToken || req.body.refreshToken;
 
   if (!incomingRefereshToken) {
     throw new ApiError(401, "unauthorized request");
@@ -242,9 +242,10 @@ const changePassoword = asyncHandler(async (req, res) => {
   const { oldPassword, newPassword } = req.body;
 
   const user = await User.findById(req.user?._id);
-  const isOldPasswordValid = await user.isPasswordCorrect(oldPassword);
+  console.log("password change log " + user);
+  const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
 
-  if (!isOldPasswordValid) {
+  if (!isPasswordCorrect) {
     throw new ApiError(400, "Invalid old password");
   }
 
@@ -253,11 +254,13 @@ const changePassoword = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, {}, "Password updated successfully"));
+    .json(new ApiResponse(200, {}, "Password changed successfully"));
 });
 
 const getCurrentUser = asyncHandler(async (req, res) => {
-  res.status(200).json(200, req.user, "current user fetched successfully");
+  return res
+    .status(200)
+    .json(new ApiResponse(200, req.user, "User fetched Successfully"));
 });
 
 const updateAccountDetails = asyncHandler(async (req, res) => {
@@ -340,12 +343,12 @@ const updateCoverImage = asyncHandler(async (req, res) => {
 
 const getUserChannelProfile = asyncHandler(async (req, res) => {
   const { username } = req.params;
-
+  console.log("CHANNERL PROFILE : " + username);
   if (!username) {
     throw new ApiError(400, "User is missing");
   }
 
-  const channel = User.aggregate([
+  const channel = await User.aggregate([
     {
       $match: {
         username: username?.toLowerCase(),
@@ -370,10 +373,10 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
     {
       $addFields: {
         subscribersCount: {
-          $size: "subscribers", //this returns count user subscriber
+          $size: "$subscribers", //this returns count user subscriber
         },
         channelSubscriberCount: {
-          $size: "subscribedTo", // this return count of channels count i subscribed to
+          $size: "$subscribedTo", // this return count of channels count i subscribed to
         },
         isSubscribed: {
           $cond: {
@@ -412,7 +415,7 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
 
 const getWatchHistory = asyncHandler(async (req, res) => {
   //req.user._id //this wont ork in aggregation we need to change it to on ibject
-  const user = User.aggregate([
+  const user = await User.aggregate([
     {
       $match: {
         _id: new mongoose.Types.ObjectId(req.user?._id),
