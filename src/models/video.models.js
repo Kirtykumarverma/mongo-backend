@@ -20,6 +20,7 @@ const videoSchema = new Schema(
       required: true,
     },
     duration: {
+      //cloudinary
       type: Number,
       required: true,
     },
@@ -29,7 +30,7 @@ const videoSchema = new Schema(
     },
     isPublished: {
       type: Boolean,
-      default: true,
+      default: false,
     },
     owner: {
       type: Schema.Types.ObjectId,
