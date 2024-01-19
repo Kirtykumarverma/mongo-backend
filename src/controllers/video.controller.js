@@ -1,7 +1,7 @@
 import { ApiError } from "../utils/ApiError.js";
 import { uploadOnCloudinary } from "../utils/Cloudinary.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { Video } from "../models/video.models.js";
+import { Video } from "../models/video.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
 //TODO: COME BACK HERE WITH FULL CLARITY

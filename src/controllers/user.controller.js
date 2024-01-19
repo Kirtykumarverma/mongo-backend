@@ -1,7 +1,7 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import { User } from "../models/user.models.js";
+import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/Cloudinary.js";
 import jwt from "jsonwebtoken";
 import { response } from "express";
@@ -60,8 +60,6 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Avatar file is required");
   }
 
-  // console.log(avatar);
-
   const user = await User.create({
     fullName,
     avatar: avatar.url,
@@ -111,9 +109,9 @@ const loginUser = asyncHandler(async (req, res) => {
   //[]access and refresh token
   //[]send cookie
 
-  const { email, username, password } = req.body;
+  const { email, username, password, test } = req.body;
 
-  console.log(email);
+  console.log(email, test);
 
   if (!username && !email) {
     throw new ApiError(400, "Username or email is required");
@@ -139,7 +137,7 @@ const loginUser = asyncHandler(async (req, res) => {
     user._id
   );
 
-  //TODO : try top update existing user
+  //TODO: try top update existing user
   const loggedInUser = await User.findById(user._id).select(
     "-password -refreshToken"
   );
