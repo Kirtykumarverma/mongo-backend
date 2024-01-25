@@ -15,7 +15,7 @@ const getVideoComments = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid video");
   }
 
-  const aggregate = Comment.aggregate([
+  const aggregate = await Comment.aggregate([
     {
       $match: {
         video: new mongoose.Types.ObjectId(videoId),
@@ -74,6 +74,7 @@ const updateComment = asyncHandler(async (req, res) => {
   const { newComment } = req.body;
   const { commentId } = req.params;
 
+  console.log("UPDATE COMMENT : " + newComment);
   if (!isValidObjectId(commentId))
     throw new ApiError(400, "Please enter a valid comment Id");
 
