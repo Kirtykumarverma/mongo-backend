@@ -162,4 +162,41 @@ const deleteVideo = asyncHandler(async (req, res) => {
   }
 });
 
-export { publishVideo, getVideoById, updateVideoDetails, deleteVideo };
+const getAllVideos = asyncHandler(async (req, res) => {
+  try {
+    const videos = await Video.aggregate([
+      {
+        $lookup: {
+          from: "users",
+          localField: "owner",
+          foreignField: "_id",
+          as: "videoDetails",
+          pipeline: [
+            {
+              $project: {
+                fullName: 1,
+                username: 1,
+                avatar: 1,
+              },
+            },
+          ],
+        },
+      },
+    ]);
+
+    return res.status(200).json(new ApiResponse(200, videos, "All Videos"));
+  } catch (error) {
+    throw new ApiError(
+      500,
+      error?.message || "something went wrong while getting all videos"
+    );
+  }
+});
+
+export {
+  publishVideo,
+  getVideoById,
+  updateVideoDetails,
+  deleteVideo,
+  getAllVideos,
+};

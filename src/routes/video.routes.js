@@ -5,10 +5,13 @@ import {
   getVideoById,
   publishVideo,
   updateVideoDetails,
+  getAllVideos,
 } from "../controllers/video.controller.js";
 import { verifyJWT } from "../middleware/auth.middleware.js";
 
 const router = Router();
+router.route("/").get(getAllVideos);
+
 router.use(verifyJWT); //applied for all routes
 
 router.route("/publishVideo").post(
